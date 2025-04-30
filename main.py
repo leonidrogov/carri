@@ -19,14 +19,14 @@ TOKEN = os.getenv("TOKEN")
 BOT_USERNAME = "Carri_the_cat_bot"
 TIMEOUT = 30
 
-START_MESSAGE = """Привет\\!
-Меня зовут *Карри*\\, я твой котик\\-психолог, мяу 🐱
-_Не стесняйся рассказывать мне все\\, что хочешь\\!_
-Чтобы я ответил в групповом чате\\, тегни меня \\:3"""
+START_MESSAGE = """Привет!
+Меня зовут Карри, я твой котик-психолог, мяу 🐱
+Не стесняйся рассказывать мне все, что хочешь!
+Чтобы я ответил в групповом чате, тегни меня :3"""
 
-FORGET_MESSAGE = """Ты уверен\\, что хочешь\\, чтобы я забыл наш диалог\\?
-Напиши *Да* или *Нет*
-Если ответишь что угодно\\, но не *Да*\\, то я не буду тебя забывать"""
+FORGET_MESSAGE = """Ты уверен, что хочешь, чтобы я забыл наш диалог?
+Напиши Да или Нет
+Если ответишь что угодно, но не Да, то я не буду тебя забывать"""
 
 
 FORGET_FLAG = False
@@ -58,7 +58,7 @@ def save_history(data, filename):
 async def start(update: Update, context: CallbackContext) -> None:
     global prev_messages
     logger.info(f"got /start message from {update.message.from_user.full_name}")
-    await update.message.reply_text(START_MESSAGE, parse_mode="MarkdownV2")
+    await update.message.reply_text(START_MESSAGE)
     if update.message.from_user.id not in prev_messages:
         prev_messages.setdefault(update.message.from_user.id, [])
 
@@ -66,7 +66,7 @@ async def start(update: Update, context: CallbackContext) -> None:
 async def forget(update: Update, context: CallbackContext) -> None:
     logger.info(f"got /forget message from {update.message.from_user.full_name}")
     global FORGET_FLAG
-    await update.message.from_user.send_message(FORGET_MESSAGE, parse_mode="MarkdownV2")
+    await update.message.from_user.send_message(FORGET_MESSAGE)
     FORGET_FLAG = True
 
 async def message_handler(update: Update, context: CallbackContext) -> None:
@@ -104,7 +104,7 @@ async def message_handler(update: Update, context: CallbackContext) -> None:
 async def group_message_handler(update: Update, context: CallbackContext) -> None:
     global group_prev_messages
     try:
-        logger.info(f"Групповое сообщение от {update.message.from_user.full_name}: {update.message.text}")
+        logger.info(f"Group message from {update.message.from_user.full_name}")
         
         mentioned = any(
             entity.type == "mention" and 
@@ -133,10 +133,6 @@ async def group_message_handler(update: Update, context: CallbackContext) -> Non
     
 
 async def ask_carri(input_message, output_message, prev_msgs, file_prev_msgs):
-    def escape_markdown(text):
-        escape_chars = '_*[]()~`>#+-=|{}.!'
-        return ''.join(f'\\{char}' if char in escape_chars else char for char in text)
-    
     if not input_message.text.strip():
         await output_message.edit_text("Мяу? Ты ничего не написал!")
         return
@@ -157,7 +153,7 @@ async def ask_carri(input_message, output_message, prev_msgs, file_prev_msgs):
         messages.extend(prev_msgs[user_id])
         
         try:
-            stream = ai.chat.completions.create(model=AI_MODEL,
+            stream = await ai.chat.completions.create(model=AI_MODEL,
                                                 messages=messages,
                                                 stream=True,
                                                 timeout=TIMEOUT)
@@ -179,7 +175,7 @@ async def ask_carri(input_message, output_message, prev_msgs, file_prev_msgs):
                 # Обновляем только если текст изменился и прошло >0.3 сек
                 if answ != last_text and time() - last_update > 0.3:
                     try:
-                        await output_message.edit_text(escape_markdown(answ), parse_mode='MarkdownV2')
+                        await output_message.edit_text(answ)
                         last_update = time()
                         last_text = answ
                     except Exception as e:
@@ -189,7 +185,7 @@ async def ask_carri(input_message, output_message, prev_msgs, file_prev_msgs):
         # Финальное обновление
         if answ and answ != last_text:
             try:
-                await output_message.edit_text(escape_markdown(answ + "\n🐾"), parse_mode='MarkdownV2')
+                await output_message.edit_text(answ + "\n🐾")
             except Exception as e:
                 logger.warning(f"Error finalizing message: {e}")
     except Exception as e:
