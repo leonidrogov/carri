@@ -85,6 +85,8 @@ async def message_handler(update: Update, context: CallbackContext) -> None:
                 return
             else:
                 FORGET_FLAG = False
+                await update.message.reply_text("Хорошо, я ничего не забуду 😊")
+                return
             
         try:
             rpl = await update.message.reply_text("Котек думоет...")
