@@ -153,31 +153,31 @@ async def ask_carri(input_message, output_message, prev_msgs, file_prev_msgs):
             return
         logger.info("Stream created")
         answ = ""
+        
         last_update = time()
-        for chunk in stream:
-            if len(answ) >= 4095:
-                prev_msgs[input_message.from_user.id].append({"role": "assistant", "content": answ})
-                save_history(prev_msgs, file_prev_msgs)
-                answ = chunk.choices[0].delta.content
-                output_message = input_message.reply_text(answ)
-            else:
+        last_text = ""
+        
+        async for chunk in stream:
+            if chunk.choices and chunk.choices[0].delta.content:
                 tmp = chunk.choices[0].delta.content
                 answ += tmp
-                if time() - last_update > 0.3:
-                        try:
-                            await output_message.edit_text(answ)
-                            last_update = time()
-                        except Exception as e:
+                
+                # Обновляем только если текст изменился и прошло >0.3 сек
+                if answ != last_text and time() - last_update > 0.3:
+                    try:
+                        await output_message.edit_text(answ)
+                        last_update = time()
+                        last_text = answ
+                    except Exception as e:
+                        if "Message is not modified" not in str(e):
                             logger.warning(f"Error editing message: {e}")
-            
-            if answ:
-                prev_msgs[input_message.from_user.id].append({"role": "assistant", "content": answ})
-                await output_message.edit_text(answ)
-                save_history(prev_msgs, file_prev_msgs)
-        await output_message.edit_text(answ + "\n🐾")
-    except Exception as e:
-        logger.error(f"Error in ask_carri: {e}")
-        await output_message.edit_text("Мяу... что-то пошло не так 😿 Попробуй позже!")
+        
+        # Финальное обновление
+        if answ and answ != last_text:
+            try:
+                await output_message.edit_text(answ + "\n🐾")
+            except Exception as e:
+                logger.warning(f"Error finalizing message: {e}")
     
 
 def main() -> None:
