@@ -74,8 +74,8 @@ async def message_handler(update: Update, context: CallbackContext) -> None:
         
         if FORGET_FLAG:
             if update.message.text == "Да":
-                prev_messages.pop(update.message.from_user.id)
-                group_prev_messages.pop(update.message.from_user.id)
+                prev_messages.pop(update.message.from_user.id, None)
+                group_prev_messages.pop(update.message.from_user.id, None)
                 with open('data.pickle', 'wb') as f:
                     pickle.dump(prev_messages, f)
                 with open('group_data.pickle', 'wb') as f:
