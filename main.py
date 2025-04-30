@@ -153,7 +153,7 @@ async def ask_carri(input_message, output_message, prev_msgs, file_prev_msgs):
         messages.extend(prev_msgs[user_id])
         
         try:
-            stream = await ai.chat.completions.create(model=AI_MODEL,
+            stream = ai.chat.completions.create(model=AI_MODEL,
                                                 messages=messages,
                                                 stream=True,
                                                 timeout=TIMEOUT)
