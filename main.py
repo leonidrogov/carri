@@ -136,18 +136,24 @@ async def ask_carri(input_message, output_message, prev_msgs, file_prev_msgs):
         await output_message.edit_text("Мяу? Ты ничего не написал!")
         return
     try:
-        if input_message.from_user.id not in prev_msgs:
-                prev_msgs[input_message.from_user.id] = []
+        user_id = input_message.from_user.id
+        if user_id not in prev_msgs:
+            prev_msgs[user_id] = []
+            
+        if user_id not in prev_msgs:
+                prev_msgs[user_id] = []
         
-        prev_msgs[input_message.from_user.id].append({"role": "user", "content": input_message.text})
+        prev_msgs[user_id].append({"role": "user", "content": input_message.text})
 
-        if len(prev_msgs[input_message.from_user.id]) > 50:
-            prev_msgs[input_message.from_user.id].pop(0)
+        if len(prev_msgs[user_id]) > 50:
+            prev_msgs[user_id] = prev_msgs[user_id][-50:]
+        
+        messages = [{"role": "system", "content": CARRI_PROMPT}]
+        messages.extend(prev_msgs[user_id])
         
         try:
             stream = ai.chat.completions.create(model=AI_MODEL,
-                                                messages=[{"role": "system", "content": CARRI_PROMPT},
-                                                        {"role": "user", "content": " ".join(*prev_msgs[input_message.from_user.id])}],
+                                                messages=messages,
                                                 stream=True,
                                                 timeout=TIMEOUT)
         except asyncio.TimeoutError:
