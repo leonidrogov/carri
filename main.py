@@ -146,7 +146,7 @@ async def ask_carri(input_message, output_message, prev_msgs, file_prev_msgs):
         try:
             stream = ai.chat.completions.create(model=AI_MODEL,
                                                 messages=[{"role": "system", "content": CARRI_PROMPT},
-                                                        {"role": "user", "content": str(prev_msgs[input_message.from_user.id])}],
+                                                        {"role": "user", "content": " ".join(*prev_msgs[input_message.from_user.id])}],
                                                 stream=True,
                                                 timeout=TIMEOUT)
         except asyncio.TimeoutError:
