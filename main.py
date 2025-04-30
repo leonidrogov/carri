@@ -178,6 +178,9 @@ async def ask_carri(input_message, output_message, prev_msgs, file_prev_msgs):
                 await output_message.edit_text(answ + "\n🐾")
             except Exception as e:
                 logger.warning(f"Error finalizing message: {e}")
+    except Exception as e:
+        logger.error(f"Error in ask_carri: {e}")
+        await output_message.edit_text("Мяу... что-то пошло не так 😿")
     
 
 def main() -> None:
