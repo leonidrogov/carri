@@ -174,7 +174,7 @@ async def ask_carri(input_message, output_message, prev_msgs, file_prev_msgs):
                 # Обновляем только если текст изменился и прошло >0.3 сек
                 if answ != last_text and time() - last_update > 0.3:
                     try:
-                        await output_message.edit_text(answ, parse_mode='MarkdownV2')
+                        await output_message.edit_text(answ, parse_mode='Markdown')
                         last_update = time()
                         last_text = answ
                     except Exception as e:
@@ -184,7 +184,7 @@ async def ask_carri(input_message, output_message, prev_msgs, file_prev_msgs):
         # Финальное обновление
         if answ and answ != last_text:
             try:
-                await output_message.edit_text(answ + "\n🐾", parse_mode='MarkdownV2')
+                await output_message.edit_text(answ + "\n🐾", parse_mode='Markdown')
             except Exception as e:
                 logger.warning(f"Error finalizing message: {e}")
     except Exception as e:
