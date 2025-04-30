@@ -230,13 +230,13 @@ if __name__ == '__main__':
     try:
         with open('data.pickle', 'rb') as f:
             prev_messages = pickle.load(f)
-    except FileNotFoundError:
+    except Exception:
         prev_messages = dict()
         
     try:
         with open('group_data.pickle', 'rb') as f:
             group_prev_messages = pickle.load(f)
-    except FileNotFoundError:
+    except Exception:
         group_prev_messages = dict()
 
     ai = OpenAI(base_url=AI_BASE_URL, api_key=AI_API_KEY)
