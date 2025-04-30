@@ -157,7 +157,7 @@ async def ask_carri(input_message, output_message, prev_msgs, file_prev_msgs):
         last_update = time()
         last_text = ""
         
-        async for chunk in stream:
+        for chunk in stream:
             if chunk.choices and chunk.choices[0].delta.content:
                 tmp = chunk.choices[0].delta.content
                 answ += tmp
