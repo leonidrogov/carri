@@ -43,7 +43,8 @@ logger = logging.getLogger(__name__)
 
 def shutdown(signum, frame):
     logger.info("Shutting down...")
-    # Сохранение данных перед выходом
+    save_history(prev_messages, "data.pickle")
+    save_history(group_prev_messages, "group_data.pickle")
     exit(0)
     
 def save_history(data, filename):
@@ -205,6 +206,9 @@ def main() -> None:
     application.run_polling()
 
 if __name__ == '__main__':
+    signal.signal(signal.SIGINT, shutdown)
+    signal.signal(signal.SIGTERM, shutdown)
+    
     if not TOKEN or not AI_API_KEY:
         logger.fatal("Missing required environment variables")
         exit(1)
@@ -230,5 +234,3 @@ if __name__ == '__main__':
 
     ai = OpenAI(base_url=AI_BASE_URL, api_key=AI_API_KEY)
     main()
-    signal.signal(signal.SIGINT, shutdown)
-    signal.signal(signal.SIGTERM, shutdown)
